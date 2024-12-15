@@ -10,7 +10,6 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(express.static("images"));
 
 app.post("/stake", async (req, res) => {
-  console.log(req.body);
   const imageData = req.body.imageData;
   const fileExtension = req.body.imageExtension;
   const userId = req.body.userId;
@@ -43,7 +42,6 @@ app.post("/stake", async (req, res) => {
   stream.pipe(out);
   res.json({ url: `https://stake.softmodded.com/${now}.${fileExtension}` });
 
-  // delete temp file
   setTimeout(() => {
     unlinkSync(`./temp/${now}.${fileExtension}`);
   });
