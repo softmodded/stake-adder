@@ -1,5 +1,5 @@
 import express from "express";
-import { writeFileSync, createWriteStream } from "fs";
+import { writeFileSync, createWriteStream, unlinkSync } from "fs";
 import bodyParser from "body-parser";
 import { createCanvas, loadImage } from "canvas";
 import sizeOf from "image-size";
@@ -25,7 +25,7 @@ app.post("/stake", async (req, res) => {
   const image = await loadImage(`./temp/${now}.${fileExtension}`);
   ctx.drawImage(image, 0, 0);
 
-  const watermark = await loadImage("./watermark.png");
+  const watermark = await loadImage("./assets/watermark.png");
   const watermarkHeight = dimensions.height / 6;
   const watermarkWidth = dimensions.width;
   ctx.drawImage(
@@ -36,10 +36,21 @@ app.post("/stake", async (req, res) => {
     watermarkHeight
   );
 
-  const out = createWriteStream(`./images/${now}-stakified-${userId}.${fileExtension}`);
+  const out = createWriteStream(
+    `./images/${now}-stakified-${userId}.${fileExtension}`
+  );
   const stream = canvas.createJPEGStream();
   stream.pipe(out);
   res.json({ url: `https://stake.softmodded.com/${now}.${fileExtension}` });
+
+  // delete temp file
+  setTimeout(() => {
+    unlinkSync(`./temp/${now}.${fileExtension}`);
+  });
+
+  setTimeout(() => {
+    unlinkSync(`./images/${now}-stakified-${userId}.${fileExtension}`);
+  }, 5000);
 });
 
 app.listen(3000, () => {
